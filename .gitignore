@@ -4,6 +4,8 @@ __pycache__/
 
 logs/*.log
 
+database/*.db
+
 models/*.pkl
 
-database/*.db
+.ipynb_checkpoints/
