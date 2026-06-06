@@ -3,8 +3,6 @@ import pandas as pd
 # Load dataset
 df = pd.read_excel("data/telco_customer_churn.xlsx")
 
-
-
 # Columns to remove
 drop_columns = [
     "CustomerID",

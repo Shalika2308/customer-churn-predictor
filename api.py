@@ -5,21 +5,37 @@ from src.database import save_prediction
 import logging
 from enum import Enum
 from pydantic import BaseModel, Field
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+
+#Creates the API application
 app = FastAPI(
     title="Customer Churn Prediction API",
     version="1.0"
 )
 
-# =========================
-# Load Model
-# =========================
-
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError
+):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "message": "Invalid input data",
+            "details": exc.errors()
+        }
+    )
+    
+ #load model
 model = joblib.load("models/model.pkl")
 columns = joblib.load("models/columns.pkl")
 
 print("Model loaded successfully!")
 print("Columns loaded successfully!")
 
+#log file creation
 logging.basicConfig(
     filename="logs/app.log",
     level=logging.INFO,
@@ -27,6 +43,8 @@ logging.basicConfig(
 )
 
 logging.info("Customer Churn API Started")
+
+#enum for validations
 class GenderEnum(str, Enum):
     Male = "Male"
     Female = "Female"
@@ -97,7 +115,8 @@ class CustomerData(BaseModel):
         ...,
         ge=0
     )
-    
+
+#endpoints 
 @app.get("/")
 def root():
     return {
@@ -107,7 +126,7 @@ def root():
 @app.get("/health")
 def health():
     return {
-        "status": "healthy"
+        "status": "OK"
     }
 
 @app.post("/predict")
@@ -142,10 +161,7 @@ def predict(data: CustomerData):
 
         df = pd.DataFrame([input_data])
 
-        # =========================
-        # Feature Engineering
-        # =========================
-
+        #feature enginerring
         df["ChargesPerMonth"] = (
             df["Total Charges"] /
             (df["Tenure Months"] + 1)
@@ -155,25 +171,16 @@ def predict(data: CustomerData):
             df["Tenure Months"] > 24
         ).astype(int)
 
-        # =========================
-        # One Hot Encoding
-        # =========================
-
+        #one hot encoding
         df = pd.get_dummies(df)
 
-        # =========================
-        # Match Training Columns
-        # =========================
-
+       #match training columns
         df = df.reindex(
             columns=columns,
             fill_value=0
         )
 
-        # =========================
-        # Prediction
-        # =========================
-
+        #prediction and confidence
         prediction = model.predict(df)[0]
 
         confidence = float(
@@ -189,15 +196,14 @@ def predict(data: CustomerData):
         logging.info(
             f"Prediction={result}, Confidence={confidence:.4f}"
         )
-
+        # if database fails  prediction still works 
         try:
 
             save_prediction(
-            data.Tenure_Months,
-            data.Monthly_Charges,
-            data.Contract,
+            input_data,
             result,
             confidence
+
           )
 
         except Exception as db_error:

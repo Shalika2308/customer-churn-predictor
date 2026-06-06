@@ -4,12 +4,14 @@ import sqlite3
 import pandas as pd
 import plotly.express as px
 
+#page configuration
 st.set_page_config(
     page_title="Customer Churn Predictor",
     page_icon="📊",
     layout="wide"
 )
 
+#css
 st.markdown("""
 <style>
 
@@ -83,6 +85,7 @@ st.info(
     "💡 Hover over the ⓘ icons next to each field for explanations."
 )
 
+#KPI cards 
 k1, k2, k3 = st.columns(3)
 
 with k1:
@@ -103,9 +106,7 @@ with k3:
         "Connected"
     )
 
-# =========================
-# Customer Information
-# =========================
+#customer information section
 
 col1, col2 = st.columns(2)
 
@@ -145,7 +146,7 @@ with col1:
          help="Total number of months the customer has been subscribed."
     )
     
-
+#service details section
 with col2:
 
     st.markdown("### Service Details")
@@ -190,7 +191,8 @@ with col2:
     ],
     help="How the customer pays their bills."
 )
-
+    
+#security and streaming section
 st.divider()
 
 st.markdown("### Security & Streaming")
@@ -239,6 +241,7 @@ with col4:
         help="Subscription to movie streaming services."
     )
 
+#billing section
 st.divider()
 
 st.markdown("### Billing Information")
@@ -269,9 +272,10 @@ with col6:
             )
 
 st.divider()
-
+ # prediction button
 if st.button("🔮 Predict Churn", use_container_width=True):
 
+    #Converts form data into JSON.
     payload = {
         "Gender": gender,
         "Senior_Citizen": senior_citizen,
@@ -299,13 +303,14 @@ if st.button("🔮 Predict Churn", use_container_width=True):
         with st.spinner(
                 "Analyzing customer behavior..."
             ):
-
+                #Sends user data to FastAPI.
                 response = requests.post(
                     "http://127.0.0.1:8000/predict",
                     json=payload,
                     timeout=10
                 )
-
+                
+                #error handling
                 if response.status_code != 200:
                     st.error("Prediction request failed")
                     st.stop()
@@ -337,7 +342,7 @@ if st.button("🔮 Predict Churn", use_container_width=True):
             )
 
            
-        
+        #confidence score
 
         confidence_percent = result["confidence"] * 100
         
@@ -348,7 +353,7 @@ if st.button("🔮 Predict Churn", use_container_width=True):
         else:
                st.info("Low confidence prediction")
 
-
+       #metrices
         st.metric(
             "Prediction",
             result["prediction"]
@@ -374,6 +379,7 @@ st.divider()
 
 st.subheader("📜 Recent Predictions")
 
+#prediction history
 try:
 
     conn = sqlite3.connect(
@@ -390,15 +396,24 @@ try:
         conn
     )
 
-    history.columns = [
-        col.replace("_", " ").title()
-        for col in history.columns
-    ]
-
     if not history.empty:
 
+        display_history = history[
+            [
+                "prediction",
+                "confidence",
+                "created_at"
+            ]
+        ].copy()
+
+        display_history.columns = [
+            "Prediction",
+            "Confidence",
+            "Timestamp"
+        ]
+
         fig = px.histogram(
-            history,
+            display_history,
             x="Prediction",
             title="Prediction Distribution"
         )
@@ -408,12 +423,24 @@ try:
             use_container_width=True
         )
 
-    st.dataframe(
-        history,
-        use_container_width=True,
-        hide_index=True
-    )
+        st.dataframe(
+            display_history,
+            use_container_width=True,
+            hide_index=True
+        )
 
+    with st.expander("📄 View Stored Input Data"):
+
+        st.dataframe(
+            history[
+                [
+                    "id",
+                    "input_data"
+                ]
+            ],
+            use_container_width=True,
+            hide_index=True
+        )
     conn.close()
 
 except Exception as e:

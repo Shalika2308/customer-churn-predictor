@@ -1,15 +1,9 @@
 import pandas as pd
 
-# =========================
-# Load Dataset
-# =========================
-
+#load dataset
 df = pd.read_excel("data/Telco_customer_churn.xlsx")
 
-# =========================
-# Data Cleaning
-# =========================
-
+#cleaning the data
 drop_columns = [
     "CustomerID",
     "Count",
@@ -37,35 +31,23 @@ df["Total Charges"] = pd.to_numeric(
 # Remove invalid rows
 df = df.dropna()
 
-# =========================
-# Derived Feature
-# =========================
-
+#derived feature
 df["ChargesPerMonth"] = (
     df["Total Charges"] /
     (df["Tenure Months"] + 1)
 )
 
-# =========================
-# Flag/Binary Feature
-# =========================
-
+#flag feature
 df["IsLongTermCustomer"] = (
     df["Tenure Months"] > 24
 ).astype(int)
 
-# =========================
-# Separate Target
-# =========================
 
 y = df["Churn Value"]
 
 X = df.drop(columns=["Churn Value"])
 
-# =========================
-# One-Hot Encoding
-# =========================
-
+ #one-hot encoding
 categorical_columns = X.select_dtypes(
     include=["object"]
 ).columns
@@ -76,11 +58,8 @@ X_encoded = pd.get_dummies(
     drop_first=True
 )
 
-# =========================
-# Results
-# =========================
 
-print("\n===== Feature Engineering Complete =====")
+print("\n Feature Engineering ")
 
 print("\nOriginal Shape:")
 print(df.shape)

@@ -11,18 +11,10 @@ from sklearn.metrics import (
     roc_auc_score
 )
 
-# =========================
-# LOAD DATASET
-# =========================
+#dataset loading
+df = pd.read_excel("data/telco_customer_churn.xlsx")
 
-print("Loading dataset...")
-
-df = pd.read_excel("data/telco_churn.xlsx")
-
-# =========================
-# DATA CLEANING
-# =========================
-
+#data cleaning
 drop_columns = [
     "CustomerID",
     "Count",
@@ -50,35 +42,26 @@ df = df.dropna()
 
 print(f"Dataset shape after cleaning: {df.shape}")
 
-# =========================
-# FEATURE ENGINEERING
-# =========================
-
-# Derived Feature
+#feature engineering
+#Derived Feature
 df["ChargesPerMonth"] = (
     df["Total Charges"] /
     (df["Tenure Months"] + 1)
 )
 
-# Flag Feature
+#Flag Feature
 df["IsLongTermCustomer"] = (
     df["Tenure Months"] > 24
 ).astype(int)
 
 print("Feature engineering completed")
 
-# =========================
-# FEATURES & TARGET
-# =========================
-
+#feature and target
 y = df["Churn Value"]
 
 X = df.drop(columns=["Churn Value"])
 
-# =========================
-# ONE-HOT ENCODING
-# =========================
-
+#one - hot encoding
 categorical_columns = X.select_dtypes(
     include=["object", "string"]
 ).columns
@@ -94,10 +77,7 @@ X = X.astype(int, errors="ignore")
 
 print(f"Encoded dataset shape: {X.shape}")
 
-# =========================
-# TRAIN TEST SPLIT
-# =========================
-
+#train-test split
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -109,11 +89,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 print(f"Training samples: {X_train.shape[0]}")
 print(f"Testing samples : {X_test.shape[0]}")
 
-# =========================
-# LOGISTIC REGRESSION
-# =========================
-
-print("\nTraining Logistic Regression...")
+#logistic regression
+print("\nTraining Logistic Regression")
 
 lr_model = LogisticRegression(
     max_iter=3000
@@ -129,7 +106,7 @@ lr_recall = recall_score(y_test, lr_pred)
 lr_f1 = f1_score(y_test, lr_pred)
 lr_auc = roc_auc_score(y_test, lr_pred)
 
-print("\n===== Logistic Regression =====")
+print("\nLogistic Regression ")
 
 print(f"Accuracy : {lr_accuracy:.4f}")
 print(f"Precision: {lr_precision:.4f}")
@@ -137,10 +114,7 @@ print(f"Recall   : {lr_recall:.4f}")
 print(f"F1 Score : {lr_f1:.4f}")
 print(f"ROC-AUC  : {lr_auc:.4f}")
 
-# =========================
-# RANDOM FOREST
-# =========================
-
+#random forest
 print("\nTraining Random Forest...")
 
 rf_model = RandomForestClassifier(
@@ -158,7 +132,7 @@ rf_recall = recall_score(y_test, rf_pred)
 rf_f1 = f1_score(y_test, rf_pred)
 rf_auc = roc_auc_score(y_test, rf_pred)
 
-print("\n===== Random Forest =====")
+print("\nRandom Forest")
 
 print(f"Accuracy : {rf_accuracy:.4f}")
 print(f"Precision: {rf_precision:.4f}")
@@ -166,10 +140,7 @@ print(f"Recall   : {rf_recall:.4f}")
 print(f"F1 Score : {rf_f1:.4f}")
 print(f"ROC-AUC  : {rf_auc:.4f}")
 
-# =========================
-# SELECT BEST MODEL
-# =========================
-
+#select best model
 if lr_auc >= rf_auc:
     best_model = lr_model
     model_name = "Logistic Regression"
@@ -179,10 +150,7 @@ else:
 
 print(f"\nBest Model Selected: {model_name}")
 
-# =========================
-# SAVE MODEL
-# =========================
-
+#save model
 joblib.dump(
     best_model,
     "models/model.pkl"

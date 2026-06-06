@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 
 def create_database():
@@ -10,9 +11,7 @@ def create_database():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS predictions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            tenure_months INTEGER,
-            monthly_charges REAL,
-            contract TEXT,
+            input_data TEXT,
             prediction TEXT,
             confidence REAL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -26,13 +25,10 @@ def create_database():
 
 
 def save_prediction(
-    tenure_months,
-    monthly_charges,
-    contract,
+    input_data,
     prediction,
     confidence
 ):
-
 
     conn = sqlite3.connect("database/predictions.db")
 
@@ -40,18 +36,14 @@ def save_prediction(
 
     cursor.execute("""
         INSERT INTO predictions (
-            tenure_months,
-            monthly_charges,
-            contract,
+            input_data,
             prediction,
             confidence
         )
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (?, ?, ?)
     """,
     (
-        tenure_months,
-        monthly_charges,
-        contract,
+        json.dumps(input_data),
         prediction,
         confidence
     ))
