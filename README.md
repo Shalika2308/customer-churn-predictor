@@ -1,55 +1,29 @@
-#  Customer Churn Prediction System
+# Customer Churn Prediction System
 
-##  Project Overview
+## Project Overview
 
-Customer retention is one of the most important challenges faced by telecom companies.
+### Problem Statement
 
-This project predicts whether a customer is likely to leave (churn) based on demographic information, service subscriptions, billing details, and contract information.
+Customer churn is a major challenge for telecom companies, as losing existing customers directly impacts revenue and growth. Identifying customers who are likely to leave enables businesses to take proactive retention measures and improve customer satisfaction.
 
-The solution provides:
+### Solution
 
-* Machine Learning Prediction Engine
-* FastAPI REST API
-* Streamlit Dashboard
-* SQLite Prediction Storage
-* Logging & Monitoring
-* Input Validation
-* Prediction Confidence Scoring
+This project implements an end-to-end Customer Churn Prediction System that predicts whether a customer is likely to churn based on demographic information, subscribed services, contract details, and billing data. The solution combines machine learning, API development, data persistence, and a user-friendly web interface to provide a complete prediction workflow.
 
-# 🎯 Business Problem
+### Key Components
 
-Customer acquisition is significantly more expensive than customer retention.
+* **Machine Learning Prediction Engine** for churn prediction
+* **FastAPI REST API** for serving predictions
+* **Streamlit Dashboard** for user interaction
+* **SQLite Database Storage** for prediction history
+* **Input Validation** for reliable and secure requests
+* **Logging & Monitoring** for tracking application activity and errors
+* **Prediction Confidence Scoring** to indicate model certainty
+* **Feature Engineering Pipeline** for improved model performance
 
-By identifying customers who are likely to churn, businesses can:
+# Project Structure
 
-* Launch targeted retention campaigns
-* Improve customer satisfaction
-* Reduce revenue loss
-* Increase customer lifetime value
-
-# 🏗️ System Architecture
-
-User
- │
- ▼
-Streamlit Dashboard
- │
- ▼
-FastAPI REST API
- │
- ▼
-Machine Learning Model
- │
- ▼
-Prediction + Confidence
- │
- ├────────► SQLite Database
- │
- └────────► Application Logs
-
-
-# 📂 Project Structure
-
+```text
 customer-churn-predictor/
 │
 ├── data/
@@ -76,12 +50,14 @@ customer-churn-predictor/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+```
 
-# 📈 Dataset
+# Dataset
 
 Dataset Used:
 
 **IBM Telco Customer Churn Dataset**
+Dataset link: [IBM Telco Customer Churn Dataset]( https://www.kaggle.com/datasets/yeanzc/telco-customer-churn-ibm-dataset)
 
 Contains information about:
 
@@ -91,17 +67,17 @@ Contains information about:
 * Contract information
 * Churn status
 
-Dataset Size:
+**Dataset Size**
 
-* 7043 customer records
+- 7,043 customer records
 
-Target Variable:
+**Target Variable**
 
-Churn Value
-0 = No Churn
-1 = Churn
+- **Churn Value**
+  - `0` → Customer is retained (No Churn)
+  - `1` → Customer has left the service (Churn)
 
-# ⚙️ Feature Engineering
+# Feature Engineering
 
 Three feature engineering techniques were implemented.
 
@@ -142,7 +118,7 @@ Purpose:
 
 * Converts categorical values into machine-learning-compatible format.
 
-# 🤖 Machine Learning Models
+# Machine Learning Models
 
 Two models were evaluated.
 
@@ -170,7 +146,7 @@ Performance:
 
 Selected Model:
 
-Logistic Regression
+**Logistic Regression**
 
 Reason:
 
@@ -178,7 +154,7 @@ Reason:
 * Better recall
 * Better overall balance
 
-# 🌐 REST API
+# REST API
 
 ## Health Endpoint
 
@@ -190,7 +166,7 @@ Response:
 
 ```json
 {
-  "status": "healthy"
+  "status": "OK"
 }
 ```
 
@@ -209,7 +185,7 @@ Returns:
 }
 ```
 
-# 🛡️ Validation
+# Validation
 
 Implemented using Pydantic.
 
@@ -222,7 +198,7 @@ Validation Rules:
 * Missing Fields Rejected
 * Incorrect Data Types Rejected
 
-# 💾 Database Storage
+# Database Storage
 
 Predictions are automatically stored in SQLite.
 
@@ -240,7 +216,7 @@ Database File:
 ```text
 database/predictions.db
 ```
-# 📜 Logging
+# Logging
 
 Logs are written to:
 
@@ -256,27 +232,43 @@ Logged Events:
 * Database Errors
 * Runtime Exceptions
 
-# ⚡ Failure Handling
+## Failure Handling
 
-The application is designed to remain available even if database operations fail.
+The application is designed to continue serving predictions even if database operations fail.
 
-Example:
+After a prediction is generated, the system attempts to save the prediction details to the SQLite database. Database operations are wrapped inside a separate `try-except` block.
+
+If the database save operation fails (for example, due to a missing database file, connection issue, or write error):
+
+- The error is recorded in the application logs.
+- The prediction process is not interrupted.
+- The API still returns the prediction and confidence score to the user.
+
+This approach improves application reliability by ensuring that database failures do not prevent users from receiving prediction results.
+
+### Workflow
 
 ```text
-Prediction Generated
+Prediction Request
        │
        ▼
-Database Save Fails
+Generate Prediction
        │
        ▼
-Error Logged
+Try Saving to Database
        │
-       ▼
-Prediction Still Returned
+       ├── Success → Save Record
+       │
+       └── Failure
+                │
+                ▼
+          Log Error
+                │
+                ▼
+      Return Prediction
 ```
-This ensures high availability and better user experience.
 
-# 🖥️ Streamlit Dashboard
+# Streamlit Dashboard
 
 Features:
 
@@ -287,15 +279,29 @@ Features:
 * Interactive Plotly Charts
 * User Guidance Tooltips
 
-# 🔧 Installation
+# Installation & Setup
+
+## Prerequisites
+
+Before running the project, ensure the following software is installed:
+
+* Python 3.10 or later
+* Visual Studio Code (recommended)
+* Internet connection (for installing dependencies)
+
+**Note:** SQLite does not need to be installed separately because Python includes the built-in `sqlite3` library.
+
 
 ## Clone Repository
 
 ```bash
-git clone YOUR_REPOSITORY_URL
+git clone https://github.com/Shalika2308/customer-churn-predictor
 cd customer-churn-predictor
 ```
+
 ## Create Virtual Environment
+
+A virtual environment keeps project dependencies isolated from other Python projects.
 
 ### Windows
 
@@ -311,40 +317,71 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
+After activation, you should see:
+
+```text
+(venv)
+```
+
+at the beginning of your terminal prompt.
+
 ## Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-# ▶️ Running the Application
+**Note:**
 
-## Terminal 1 — FastAPI
+* Installation may take several minutes depending on internet speed.
+* Wait until installation completes successfully before proceeding.
+
+#  Create Database
+
+Before running the application, create the SQLite database:
+
+```bash
+python src/database.py
+```
+
+Expected output:
+
+```text
+Database created successfully!
+```
+
+This creates:
+
+```text
+database/predictions.db
+```
+
+The database is used to store:
+
+* Input features
+* Prediction results
+* Confidence scores
+* Timestamps
+
+
+# Running the Application
+
+The application requires two terminals.
+
+
+## Terminal 1 — Start FastAPI
 
 ```bash
 uvicorn api:app --reload
 ```
-Swagger Docs:
+
+Expected output:
 
 ```text
-http://127.0.0.1:8000/docs
+Uvicorn running on http://127.0.0.1:8000
 ```
 
-## Terminal 2 — Streamlit
-
-```bash
-streamlit run app.py
-```
-
-Dashboard:
-
-```text
-http://localhost:8501
-```
-
-# 🧪 Testing
-
-## Recommended
+## Swagger API Documentation
 
 Open:
 
@@ -352,17 +389,113 @@ Open:
 http://127.0.0.1:8000/docs
 ```
 
-Use Swagger UI.
+Swagger UI is an interactive API testing interface automatically generated by FastAPI.
 
-Click:
+Using Swagger, you can:
+
+* View available endpoints
+* Test API requests
+* Submit sample data
+* View API responses
+
+### Available Endpoints
+
+#### Health Check
+
+Open:
+
+```text
+http://127.0.0.1:8000/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "OK"
+}
+```
+
+#### Prediction Endpoint
+
+Endpoint:
 
 ```text
 POST /predict
-→ Try it out
-→ Execute
 ```
 
-# 🛠️ Technology Stack
+To test:
+
+1. Open Swagger UI.
+2. Expand `/predict`.
+3. Click **Try it out**.
+4. Enter sample customer data.
+5. Click **Execute**.
+6. View prediction response.
+
+
+## Test Prediction Using cURL
+
+Example:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/predict" ^
+-H "Content-Type: application/json" ^
+-d "{\"Gender\":\"Male\",\"Senior_Citizen\":\"No\",\"Partner\":\"Yes\",\"Dependents\":\"No\",\"Tenure_Months\":24,\"Phone_Service\":\"Yes\",\"Multiple_Lines\":\"No\",\"Internet_Service\":\"DSL\",\"Online_Security\":\"Yes\",\"Online_Backup\":\"No\",\"Device_Protection\":\"No\",\"Tech_Support\":\"Yes\",\"Streaming_TV\":\"No\",\"Streaming_Movies\":\"No\",\"Contract\":\"One year\",\"Paperless_Billing\":\"Yes\",\"Payment_Method\":\"Credit card (automatic)\",\"Monthly_Charges\":70,\"Total_Charges\":1680}"
+```
+
+Expected response:
+
+```json
+{
+  "prediction": "No Churn",
+  "confidence": 0.84
+}
+```
+**Note:** On Windows PowerShell, line continuation characters may differ. Alternatively, the API can be tested directly using FastAPI Swagger UI at:
+
+http://127.0.0.1:8000/docs
+
+## Terminal 2 — Start Streamlit Dashboard
+
+```bash
+streamlit run app.py
+```
+
+Expected output:
+
+```text
+Local URL: http://localhost:8501
+```
+
+Open:
+
+```text
+http://localhost:8501
+```
+
+The Streamlit dashboard provides:
+
+* Customer input form
+* Prediction generation
+* Confidence score display
+* Prediction history
+* Prediction distribution chart
+
+# Quick Verification Checklist
+
+Before using the application:
+
+* Virtual environment activated
+* Dependencies installed successfully
+* Database created successfully
+* FastAPI server running
+* Swagger UI accessible
+* Streamlit dashboard accessible
+
+If all steps are successful, the application is ready to use.
+
+# Technology Stack
 
 ### Machine Learning
 
@@ -389,28 +522,16 @@ POST /predict
 * Joblib
 * Logging
 
-# ⚠️ Current Limitations
-
-* The model is trained on a single historical dataset and may require retraining for new customer behavior patterns.
-* Predictions are based only on the features available in the IBM Telco Customer Churn Dataset.
-* SQLite is suitable for development and small-scale deployments but not for large production workloads.
-* The application currently supports single-customer predictions only.
-* Authentication and user management are not included in the current version.
-
-# 📚 Key Learnings
+# Key Learnings
 
 Through this project I gained hands-on experience with:
 
-* Data preprocessing and feature engineering
-* Machine Learning model training and evaluation
-* FastAPI REST API development
-* Pydantic validation
-* SQLite database integration
-* Application logging and monitoring
-* Streamlit dashboard development
+* Data preprocessing, feature engineering, Machine Learning model training and evaluation
+* FastAPI REST API development, Pydantic validation and SQLite database integration
+* Application logging and monitoring and Streamlit dashboard development
 * End-to-end ML application deployment workflow
 
-# 👩‍💻 Author
+#  Author
 
 **Shalika**
 
