@@ -200,22 +200,21 @@ Validation Rules:
 
 # Database Storage
 
-Predictions are automatically stored in SQLite.
+For each prediction request, the following information is stored:
 
-Stored Information:
-
-* Tenure Months
-* Monthly Charges
-* Contract Type
-* Prediction
-* Confidence Score
+* Complete input customer data (stored as JSON)
+* Prediction result
+* Confidence score
 * Timestamp
 
-Database File:
+### Database File
 
 ```text
 database/predictions.db
 ```
+
+This allows prediction history to be preserved and reviewed even after the application is restarted.
+
 # Logging
 
 Logs are written to:
@@ -461,6 +460,8 @@ http://127.0.0.1:8000/docs
 ```bash
 streamlit run app.py
 ```
+**Note:**
+* Make sure you are in same virtual environment.
 
 Expected output:
 
