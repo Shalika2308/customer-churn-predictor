@@ -300,82 +300,69 @@ if st.button("🔮 Predict Churn", use_container_width=True):
         "Total_Charges": total_charges
     }
 
-    try:
+try:
 
-        with st.spinner(
-                "Analyzing customer behavior..."
-            ):
-                #Sends user data to FastAPI.
-                response = requests.post(
-                     "https://customer-churn-predictor-3prs.onrender.com/predict",
-                    json=payload,
-                  timeout=10
-                )
-                
-                #error handling
-                if response.status_code != 200:
-                    st.error("Prediction request failed")
-                    st.stop()
+    response = requests.get(
+        "https://customer-churn-predictor-3prs.onrender.com/history"
+    )
 
-                result = response.json()
+    data = response.json()
 
-        st.divider()
+    history = pd.json_normalize(data)
 
-        st.subheader("Prediction Result")
+    if not history.empty:
 
-        if result["prediction"] == "Churn":
+        display_history = history[
+            [
+                "prediction",
+                "confidence",
+                "created_at"
+            ]
+        ].copy()
 
-            st.error(
-                "🔴 High Risk Customer (Likely To Churn)"
-            )
-
-            st.warning(
-                "Consider customer retention strategies."
-            )
-
-        else:
-
-            st.success(
-                "🟢 Customer Likely To Stay"
-            )
-
-            st.info(
-                "Customer appears to be relatively stable."
-            )
-
-           
-        #confidence score
-
-        confidence_percent = result["confidence"] * 100
-        
-        if confidence_percent >= 80:
-              st.success("High confidence prediction")
-        elif confidence_percent >= 60:
-               st.warning("Moderate confidence prediction")
-        else:
-               st.info("Low confidence prediction")
-
-       #metrices
-        st.metric(
+        display_history.columns = [
             "Prediction",
-            result["prediction"]
-          )
+            "Confidence",
+            "Timestamp"
+        ]
 
-
-        st.metric(
-            "Confidence Score",
-             f"{confidence_percent:.2f}%"
-             )
-
-        st.progress(
-           result["confidence"]
+        fig = px.histogram(
+            display_history,
+            x="Prediction",
+            title="Prediction Distribution"
         )
 
-    except Exception as e:
-
-        st.error(
-            f"API Error: {str(e)}"
+        st.plotly_chart(
+            fig,
+            use_container_width=True
         )
+
+        st.dataframe(
+            display_history,
+            use_container_width=True,
+            hide_index=True
+        )
+
+        with st.expander(
+            "📄 View Stored Input Data"
+        ):
+
+            st.dataframe(
+                history[
+                    [
+                        "id",
+                        "input_data"
+                    ]
+                ],
+                use_container_width=True,
+                hide_index=True
+            )
+
+except Exception as e:
+
+    st.info(
+        f"No prediction history available. ({str(e)})"
+    )
         
 st.divider()
 
