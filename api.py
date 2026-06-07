@@ -9,12 +9,16 @@ from pydantic import BaseModel, Field
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from src.database import create_database
 
 #Creates the API application
 app = FastAPI(
     title="Customer Churn Prediction API",
     version="1.0"
 )
+
+
+create_database()
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
