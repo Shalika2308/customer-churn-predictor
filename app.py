@@ -3,7 +3,9 @@ import requests
 import sqlite3
 import pandas as pd
 import plotly.express as px
+from src.database import create_database
 
+create_database()
 #page configuration
 st.set_page_config(
     page_title="Customer Churn Predictor",
