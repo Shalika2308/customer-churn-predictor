@@ -381,7 +381,16 @@ try:
             "Confidence",
             "Timestamp"
         ]
+        fig = px.histogram(
+        display_history,
+        x="Prediction",
+        title="Prediction Distribution"
+)
 
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
         st.dataframe(
             display_history,
             use_container_width=True,
