@@ -384,18 +384,12 @@ st.subheader("📜 Recent Predictions")
 #prediction history
 try:
 
-    conn = sqlite3.connect(
-        "database/predictions.db"
+    response = requests.get(
+        "https://customer-churn-predictor-3prs.onrender.com/history"
     )
 
-    history = pd.read_sql(
-        """
-        SELECT *
-        FROM predictions
-        ORDER BY id DESC
-        LIMIT 10
-        """,
-        conn
+    history = pd.DataFrame(
+        response.json()
     )
 
     if not history.empty:
@@ -431,19 +425,20 @@ try:
             hide_index=True
         )
 
-    with st.expander("📄 View Stored Input Data"):
+        with st.expander(
+            "📄 View Stored Input Data"
+        ):
 
-        st.dataframe(
-            history[
-                [
-                    "id",
-                    "input_data"
-                ]
-            ],
-            use_container_width=True,
-            hide_index=True
-        )
-    conn.close()
+            st.dataframe(
+                history[
+                    [
+                        "id",
+                        "input_data"
+                    ]
+                ],
+                use_container_width=True,
+                hide_index=True
+            )
 
 except Exception as e:
 

@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 from src.database import save_prediction
 import logging
+import sqlite3
 from enum import Enum
 from pydantic import BaseModel, Field
 from fastapi import Request
@@ -128,6 +129,24 @@ def health():
     return {
         "status": "OK"
     }
+@app.get("/history")
+def get_history():
+
+    conn = sqlite3.connect("database/predictions.db")
+
+    df = pd.read_sql(
+        """
+        SELECT *
+        FROM predictions
+        ORDER BY id DESC
+        LIMIT 10
+        """,
+        conn
+    )
+
+    conn.close()
+
+    return df.to_dict(orient="records")
 
 @app.post("/predict")
 def predict(data: CustomerData):
@@ -224,3 +243,4 @@ def predict(data: CustomerData):
         return {
             "error": str(e)
         }
+    
