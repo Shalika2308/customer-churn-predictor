@@ -1,10 +1,15 @@
 import sqlite3
 import json
+import os
 
 
 def create_database():
 
-    conn = sqlite3.connect("database/predictions.db")
+    os.makedirs("database", exist_ok=True)
+
+    conn = sqlite3.connect(
+        "database/predictions.db"
+    )
 
     cursor = conn.cursor()
 

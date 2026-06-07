@@ -19,6 +19,11 @@ app = FastAPI(
 
 
 create_database()
+import os
+
+print("Current directory:", os.getcwd())
+print("Database exists:",
+      os.path.exists("database/predictions.db"))
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
