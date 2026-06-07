@@ -1,11 +1,8 @@
 import streamlit as st
 import requests
-import sqlite3
 import pandas as pd
 import plotly.express as px
-from src.database import create_database
 
-create_database()
 #page configuration
 st.set_page_config(
     page_title="Customer Churn Predictor",
@@ -300,6 +297,65 @@ if st.button("🔮 Predict Churn", use_container_width=True):
         "Total_Charges": total_charges
     }
 
+    try:
+
+        with st.spinner(
+            "Analyzing customer behavior..."
+        ):
+
+            response = requests.post(
+                "https://customer-churn-predictor-3prs.onrender.com/predict",
+                json=payload,
+                timeout=20
+            )
+
+            result = response.json()
+
+        st.divider()
+
+        st.subheader("Prediction Result")
+
+        if result["prediction"] == "Churn":
+
+            st.error(
+                "🔴 High Risk Customer (Likely To Churn)"
+            )
+
+        else:
+
+            st.success(
+                "🟢 Customer Likely To Stay"
+            )
+
+        confidence_percent = (
+            result["confidence"] * 100
+        )
+
+        st.metric(
+            "Prediction",
+            result["prediction"]
+        )
+
+        st.metric(
+            "Confidence Score",
+            f"{confidence_percent:.2f}%"
+        )
+
+        st.progress(
+            result["confidence"]
+        )
+
+    except Exception as e:
+
+        st.error(
+            f"API Error: {str(e)}"
+        )
+
+st.divider()
+
+st.subheader("📜 Recent Predictions")
+
+#prediction history
 try:
 
     response = requests.get(
@@ -326,67 +382,16 @@ try:
             "Timestamp"
         ]
 
-        fig = px.histogram(
-            display_history,
-            x="Prediction",
-            title="Prediction Distribution"
-        )
-
-        st.plotly_chart(
-            fig,
-            use_container_width=True
-        )
-
         st.dataframe(
             display_history,
             use_container_width=True,
             hide_index=True
         )
 
-        with st.expander(
-            "📄 View Stored Input Data"
-        ):
-
-            st.dataframe(
-                history[
-                    [
-                        "id",
-                        "input_data"
-                    ]
-                ],
-                use_container_width=True,
-                hide_index=True
-            )
-
-except Exception as e:
-
-    st.info(
-        f"No prediction history available. ({str(e)})"
-    )
-        
-st.divider()
-
-st.subheader("📜 Recent Predictions")
-
-#prediction history
-try:
-
-    response = requests.get(
-        "https://customer-churn-predictor-3prs.onrender.com/history"
-    )
-
-    data = response.json()
-
-    st.write(data)
-
-    history = pd.json_normalize(data)
-
-    st.dataframe(history)
-
 except Exception as e:
 
     st.error(str(e))
-    
+
 st.markdown("---")
 
 st.caption(
