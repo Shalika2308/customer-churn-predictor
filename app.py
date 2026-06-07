@@ -104,7 +104,7 @@ with k2:
 
 with k3:
     st.metric(
-        "Database",
+        "Backend",
         "Connected"
     )
 
