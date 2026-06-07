@@ -387,10 +387,10 @@ try:
     response = requests.get(
         "https://customer-churn-predictor-3prs.onrender.com/history"
     )
+    st.write(response.json())
+    data = response.json()
 
-    history = pd.DataFrame(
-        response.json()
-    )
+    history = pd.DataFrame.from_records(data)
 
     if not history.empty:
 
