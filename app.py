@@ -387,64 +387,18 @@ try:
     response = requests.get(
         "https://customer-churn-predictor-3prs.onrender.com/history"
     )
-    st.write(response.json())
+
     data = response.json()
 
-    history = pd.DataFrame.from_records(data)
+    st.write(data)
 
-    if not history.empty:
+    history = pd.json_normalize(data)
 
-        display_history = history[
-            [
-                "prediction",
-                "confidence",
-                "created_at"
-            ]
-        ].copy()
-
-        display_history.columns = [
-            "Prediction",
-            "Confidence",
-            "Timestamp"
-        ]
-
-        fig = px.histogram(
-            display_history,
-            x="Prediction",
-            title="Prediction Distribution"
-        )
-
-        st.plotly_chart(
-            fig,
-            use_container_width=True
-        )
-
-        st.dataframe(
-            display_history,
-            use_container_width=True,
-            hide_index=True
-        )
-
-        with st.expander(
-            "📄 View Stored Input Data"
-        ):
-
-            st.dataframe(
-                history[
-                    [
-                        "id",
-                        "input_data"
-                    ]
-                ],
-                use_container_width=True,
-                hide_index=True
-            )
+    st.dataframe(history)
 
 except Exception as e:
 
-    st.info(
-        f"No prediction history available. ({str(e)})"
-    )
+    st.error(str(e))
     
 st.markdown("---")
 
