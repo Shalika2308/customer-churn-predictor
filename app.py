@@ -305,7 +305,7 @@ if st.button("🔮 Predict Churn", use_container_width=True):
             ):
                 #Sends user data to FastAPI.
                 response = requests.post(
-                    "http://127.0.0.1:8000/predict",
+                    ""https://customer-churn-predictor-3prs.onrender.com/predict"",
                     json=payload,
                     timeout=10
                 )
